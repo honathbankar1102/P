@@ -1,0 +1,382 @@
+
+
+# Assignment 1: Shell Programming (Address Book)
+
+CO1
+
+Q1. What is shell scripting?
+
+Shell scripting is writing a series of Linux commands in a file to automate tasks.
+
+Q2. What is Bash?
+
+Bash stands for Bourne Again Shell. It is a command-line interpreter.
+
+Q3. What is the purpose of `case` statement?
+
+It is used for conditional selection based on a value. It works like a switch statement in C.
+
+Q4. What is the difference between `>` and `>>`?
+
+- `>` overwrites a file.
+- `>>` appends data to a file.
+
+Q5. What is the purpose of `grep` or `awk`?
+
+They are text-processing tools. `grep` searches text patterns, while `awk` processes structured text fields and records.
+
+Q6. What is `chmod +x`?
+
+It gives executable permission to a file.
+
+Q7. What is the purpose of `echo`?
+
+It displays text or output on the terminal.
+
+Q8. What is the purpose of `read`?
+
+It accepts input from the user.
+
+
+
+
+
+
+# Assignment 2: Process Management (FORK, WAIT, Zombie and Orphan)
+
+CO2
+
+Q1. What is a process?
+
+A process is a program currently in execution.
+
+Q2. What is `fork()`?
+
+It is a system call used to create a new child process.
+
+Q3. What does `fork()` return?
+
+- Negative value: Process creation failed.
+- Zero: Currently executing child process.
+- Positive value: Currently executing parent process; value is child's PID.
+
+Q4. What is `wait()`?
+
+It is a system call used by the parent process to wait for the child process to terminate and collect its exit status.
+
+Q5. What is a zombie process?
+
+A zombie is a terminated child process whose exit status has not yet been collected by its parent.
+
+Q6. What is an orphan process?
+
+An orphan is a process whose parent terminates while the child is still running.
+
+Q7. How do you prevent zombie processes?
+
+By collecting the child's termination status using `wait()` or `waitpid()`.
+
+Q8. What is PID?
+
+PID stands for Process ID. It is an identifier assigned to a process.
+
+Q9. What is PPID?
+
+PPID stands for Parent Process ID.
+
+Q10. Why does the child not modify the parent's sorted array?
+
+Because after `fork()`, parent and child have separate virtual address spaces. Changes to ordinary variables in one process do not change the other process's copy.
+
+
+
+
+
+
+
+# Assignment 3: Thread Synchronization (Producer-Consumer)
+
+CO3
+
+Q1. What is a thread?
+
+A thread is a lightweight unit of execution within a process.
+
+Q2. What is thread synchronization?
+
+It is the coordination between threads to ensure correct access to shared resources.
+
+Q3. What is a semaphore?
+
+A semaphore is a synchronization variable used to control access to shared resources.
+
+Q4. What are the two types of semaphores?
+
+1. Binary semaphore.
+2. Counting semaphore.
+
+Q5. What is a mutex?
+
+A mutex is a mutual-exclusion lock used to ensure only one thread enters a protected critical section at a time.
+
+Q6. What is a critical section?
+
+A part of the program where shared resources are accessed.
+
+Q7. What is the difference between semaphore and mutex?
+
+A counting semaphore maintains a resource count, whereas a mutex provides exclusive ownership of a protected critical section.
+
+Q8. Why do we use modulo in the buffer?
+
+To implement circular buffer indexing.
+
+Q9. What happens if the producer produces faster than the consumer?
+
+The buffer becomes full, and the producer waits for an empty slot.
+
+Q10. What happens if the consumer runs faster than the producer?
+
+The buffer becomes empty, and the consumer waits for an item.
+
+
+
+
+
+
+# Assignment 4: Dining Philosophers Problem
+
+CO3, CO4
+
+Q1. What is the Dining Philosophers problem?
+
+It is a classical synchronization problem involving multiple processes competing for limited shared resources.
+
+Q2. Why does deadlock occur in the Dining Philosophers problem?
+
+When every philosopher holds one fork and waits indefinitely for another fork.
+
+Q3. How many philosophers and forks are used?
+
+Five philosophers and five forks.
+
+Q4. What is deadlock?
+
+Deadlock is a condition in which two or more processes wait indefinitely for resources held by each other.
+
+Q5. What are the four necessary conditions for deadlock?
+
+1. Mutual exclusion.
+2. Hold and wait.
+3. No preemption.
+4. Circular wait.
+
+Q6. What is the purpose of the room semaphore?
+
+It allows at most four philosophers to compete for forks simultaneously and prevents deadlock.
+
+Q7. What is circular wait?
+
+A condition in which processes form a circular chain, each waiting for a resource held by the next process.
+
+Q8. Does this program guarantee starvation freedom?
+
+No. It prevents deadlock, but does not guarantee fair scheduling of waiting philosophers.
+
+Q9. What is the difference between deadlock and starvation?
+
+- Deadlock: Processes are permanently blocked waiting for each other.
+- Starvation: A process waits indefinitely because other processes repeatedly get the resource first.
+
+
+
+
+
+# Assignment 5: Banker's Algorithm
+
+CO4
+
+Q1. What is Banker's Algorithm?
+
+It is a deadlock avoidance algorithm that checks whether resource allocation leaves the system in a safe state.
+
+Q2. Who proposed Banker's Algorithm?
+
+Edsger W. Dijkstra.
+
+Q3. What is a safe state?
+
+A state in which there exists at least one sequence allowing all processes to complete.
+
+Q4. What is a safe sequence?
+
+An order in which all processes can complete using currently available and subsequently released resources.
+
+Q5. What is the formula for Need?
+
+\\[ Need = Max - Allocation \\]
+
+Q6. What is Work?
+
+Work is a temporary array representing available resources during the safety algorithm.
+
+Q7. What is Finish?
+
+Finish is an array that records whether each process has completed in the safety check.
+
+Q8. What is the difference between deadlock prevention and avoidance?
+
+- Prevention ensures at least one necessary deadlock condition cannot hold.
+- Avoidance checks resource allocation decisions to keep the system safe.
+
+Q9. Does an unsafe state always mean deadlock has already occurred?
+
+No. Unsafe means no safe sequence is guaranteed. It does not necessarily mean deadlock has already occurred.
+
+
+
+
+
+
+# Assignment 6: Interprocess Communication Using FIFOs
+
+CO5
+
+Q1. What is IPC?
+
+IPC stands for Interprocess Communication. It allows processes to communicate and exchange data.
+
+Q2. What is FIFO?
+
+FIFO stands for First In First Out. It is a named pipe used for communication between processes.
+
+Q3. What is the difference between pipe and FIFO?
+
+- Ordinary pipe is generally used between related processes.
+- FIFO has a name in the filesystem and can be used by independent processes.
+
+Q4. Why are two FIFOs required?
+
+One FIFO sends data from Process 1 to Process 2, and the other sends data back.
+
+Q5. What is `mkfifo()`?
+
+It is a system call used to create a named pipe.
+
+Q6. What is `O_RDONLY`?
+
+It opens a file or FIFO for reading only.
+
+Q7. What is `O_WRONLY`?
+
+It opens a file or FIFO for writing only.
+
+Q8. What is `unlink()`?
+
+It removes a filesystem name, such as a FIFO, when it is no longer needed.
+
+Q9. What is the difference between `read()` and `fread()`?
+
+`read()` is a low-level system call, whereas `fread()` is a buffered standard C library function.
+
+
+
+
+
+# Assignment 7: Interprocess Communication Using Pipes
+
+CO5
+
+Q1. What is a pipe?
+
+A pipe is an IPC mechanism that allows data transfer between processes.
+
+Q2. What are the types of pipes?
+
+1. Ordinary or unnamed pipes.
+2. Named pipes or FIFOs.
+
+Q3. Why are two pipes used?
+
+To achieve full-duplex communication.
+
+Q4. What does `pipe()` return?
+
+It returns 0 on success and -1 on failure.
+
+Q5. What is the purpose of `pipe1[0]`?
+
+It is the read end of the first pipe.
+
+Q6. What is the purpose of `pipe1[1]`?
+
+It is the write end of the first pipe.
+
+Q7. Why do we close unused pipe ends?
+
+To prevent resource leaks and ensure proper end-of-file behavior.
+
+Q8. What is the difference between `open()` and `fopen()`?
+
+`open()` returns a file descriptor, while `fopen()` returns a `FILE *` stream.
+
+Q9. What is full-duplex communication?
+
+Communication in which data can flow in both directions.
+
+
+
+
+# Assignment 8: Disk Scheduling (SSTF, SCAN, C-LOOK)
+
+CO5
+
+Q1. What is disk scheduling?
+
+Disk scheduling is the method used by the operating system to decide the order of servicing disk I/O requests.
+
+Q2. What is seek time?
+
+The time taken by the disk head to move to the required cylinder.
+
+Q3. What is SSTF?
+
+SSTF stands for Shortest Seek Time First. It selects the pending request with minimum distance from the current head position.
+
+Q4. What is SCAN?
+
+SCAN is a disk scheduling algorithm in which the disk head moves in one direction, services requests, reaches the disk end and reverses.
+
+Q5. Why is SCAN called the Elevator Algorithm?
+
+Because the disk head moves back and forth like an elevator.
+
+Q6. What is C-LOOK?
+
+C-LOOK is a circular disk scheduling algorithm that services requests in one direction and jumps to the lowest pending request.
+
+Q7. What is the difference between SCAN and C-LOOK?
+
+- SCAN travels to the physical disk boundary before reversing.
+- C-LOOK jumps between the last and first pending requests without going to the physical boundary.
+
+Q8. Which algorithm selects the nearest request?
+
+SSTF.
+
+Q9. Which algorithm can cause starvation?
+
+SSTF can cause starvation of requests that are far away if nearer requests keep arriving.
+
+Q10. What is total head movement?
+
+It is the sum of the absolute differences between consecutive head positions.
+
+Q11. What does `abs()` do?
+
+It returns the absolute value of a number.
+
+Q12. What is the initial direction in your program?
+
+Toward increasing cylinder numbers, assuming cylinder 0 is at the spindle.
+
