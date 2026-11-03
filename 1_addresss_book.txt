@@ -1,0 +1,105 @@
+#!/bin/bash
+
+# Address Book: fields are stored as tab-separated values.
+FILE=""
+
+read_record() {
+    read -r -p "Enter name: " name
+    read -r -p "Enter phone: " phone
+    read -r -p "Enter address: " address
+    read -r -p "Enter branch: " branch
+    read -r -p "Enter CGPA: " cgpa
+    read -r -p "Hostellite? (Y/N): " hostel
+}
+
+record_exists() {
+    awk -F '\t' -v key="$1" 'NR > 1 && $1 == key { found=1 } END { exit !found }' "$FILE"
+}
+
+while true; do
+    echo
+    echo "----- ADDRESS BOOK -----"
+    echo "1. Create Address Book"
+    echo "2. View Address Book"
+    echo "3. Insert Record"
+    echo "4. Delete Record"
+    echo "5. Modify Record"
+    echo "6. Exit"
+    echo "------------------------"
+    read -r -p "Enter your choice: " choice
+
+    case "$choice" in
+        1)
+            read -r -p "Enter file name: " FILE
+            if [[ -z "$FILE" ]]; then
+                echo "File name cannot be empty."
+                continue
+            fi
+            printf 'NAME\tPHONE\tADDRESS\tBRANCH\tCGPA\tHOSTELLITE\n' > "$FILE" || {
+                echo "Unable to create address book."
+                FILE=""
+                continue
+            }
+            echo "Address book created: $FILE"
+            ;;
+        2)
+            if [[ -z "$FILE" || ! -f "$FILE" ]]; then
+                echo "Create/select an address book first."
+            else
+                cat -- "$FILE"
+            fi
+            ;;
+        3)
+            if [[ -z "$FILE" || ! -f "$FILE" ]]; then
+                echo "Create/select an address book first."
+                continue
+            fi
+            read_record
+            printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
+                "$name" "$phone" "$address" "$branch" "$cgpa" "$hostel" >> "$FILE"
+            echo "Record inserted."
+            ;;
+        4)
+            if [[ -z "$FILE" || ! -f "$FILE" ]]; then
+                echo "Create/select an address book first."
+                continue
+            fi
+            read -r -p "Enter exact name to delete: " name
+            if record_exists "$name"; then
+                tmp=$(mktemp) || exit 1
+                awk -F '\t' -v key="$name" 'NR == 1 || $1 != key' "$FILE" > "$tmp"
+                mv -- "$tmp" "$FILE"
+                echo "Record(s) deleted."
+            else
+                echo "No matching record found."
+            fi
+            ;;
+        5)
+            if [[ -z "$FILE" || ! -f "$FILE" ]]; then
+                echo "Create/select an address book first."
+                continue
+            fi
+            read -r -p "Enter exact name to modify: " oldname
+            if record_exists "$oldname"; then
+                echo "Enter replacement details:"
+                read_record
+                tmp=$(mktemp) || exit 1
+                awk -F '\t' -v key="$oldname" 'BEGIN { OFS="\t" }
+                    NR == 1 || $1 != key { print }' "$FILE" > "$tmp"
+                printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
+                    "$name" "$phone" "$address" "$branch" "$cgpa" "$hostel" >> "$tmp"
+                mv -- "$tmp" "$FILE"
+                echo "Record modified."
+            else
+                echo "No matching record found."
+            fi
+            ;;
+        6)
+            echo "Exiting..."
+            break
+            ;;
+        *)
+            echo "Invalid choice. Enter 1 to 6."
+            ;;
+    esac
+done

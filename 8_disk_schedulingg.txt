@@ -1,0 +1,122 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+void sort(int a[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (a[j] > a[j + 1]) {
+                int t = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = t;
+            }
+        }
+    }
+}
+
+int main(void) {
+    int n, head, cylinders, req[MAX], sorted[MAX];
+    int left[MAX], right[MAX], l = 0, r = 0;
+
+    printf("Enter number of disk requests (1-%d): ", MAX);
+    if (scanf("%d", &n) != 1 || n < 1 || n > MAX) {
+        printf("Invalid number of requests.\n");
+        return 1;
+    }
+
+    printf("Enter disk requests:\n");
+    for (int i = 0; i < n; i++) {
+        if (scanf("%d", &req[i]) != 1) return 1;
+    }
+
+    printf("Enter initial head position: ");
+    if (scanf("%d", &head) != 1) return 1;
+    printf("Enter total number of cylinders (numbered 0 to cylinders-1): ");
+    if (scanf("%d", &cylinders) != 1 || cylinders < 1 ||
+        head < 0 || head >= cylinders) {
+        printf("Invalid disk size or head position.\n");
+        return 1;
+    }
+
+    for (int i = 0; i < n; i++) {
+        if (req[i] < 0 || req[i] >= cylinders) {
+            printf("Invalid request: %d\n", req[i]);
+            return 1;
+        }
+        sorted[i] = req[i];
+    }
+    sort(sorted, n);
+
+    /*
+       Assumption for this assignment: cylinder 0 is at the spindle.
+       Moving away from the spindle therefore means moving toward
+       increasing cylinder numbers.
+    */
+    for (int i = 0; i < n; i++) {
+        if (sorted[i] < head) left[l++] = sorted[i];
+        else right[r++] = sorted[i];
+    }
+
+    /* SSTF */
+    printf("\nSSTF (Shortest Seek Time First):\nService order: ");
+    int visited[MAX] = {0}, current = head, total = 0;
+    for (int i = 0; i < n; i++) {
+        int best = -1, distance = 0x7fffffff;
+        for (int j = 0; j < n; j++) {
+            if (!visited[j]) {
+                int d = abs(req[j] - current);
+                if (d < distance) { distance = d; best = j; }
+            }
+        }
+        visited[best] = 1;
+        total += abs(req[best] - current);
+        current = req[best];
+        printf("%d ", current);
+    }
+    printf("\nTotal head movement = %d cylinders\n", total);
+
+    /* SCAN: move outward to the last cylinder, then reverse. */
+    printf("\nSCAN (initial direction away from spindle):\nService order: ");
+    current = head;
+    total = 0;
+    for (int i = 0; i < r; i++) {
+        total += abs(right[i] - current);
+        current = right[i];
+        printf("%d ", current);
+    }
+    if (current != cylinders - 1) {
+        total += (cylinders - 1) - current;
+        current = cylinders - 1;
+    }
+    for (int i = l - 1; i >= 0; i--) {
+        total += abs(current - left[i]);
+        current = left[i];
+        printf("%d ", current);
+    }
+    printf("\nTotal head movement = %d cylinders\n", total);
+
+    /* C-LOOK: move outward, jump to lowest pending request, continue outward. */
+    printf("\nC-LOOK (initial direction away from spindle):\nService order: ");
+    current = head;
+    total = 0;
+    for (int i = 0; i < r; i++) {
+        total += abs(right[i] - current);
+        current = right[i];
+        printf("%d ", current);
+    }
+    if (l > 0) {
+        /* Circular jump is included in total movement. */
+        total += abs(current - left[0]);
+        current = left[0];
+        printf("%d ", current);
+        for (int i = 1; i < l; i++) {
+            total += abs(left[i] - current);
+            current = left[i];
+            printf("%d ", current);
+        }
+    }
+    printf("\nTotal head movement = %d cylinders\n", total);
+
+    return 0;
+}

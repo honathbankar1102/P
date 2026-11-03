@@ -1,0 +1,106 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#define MAX 100
+
+void bubbleSort(int a[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (a[j] > a[j + 1]) {
+                int t = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = t;
+            }
+        }
+    }
+}
+
+void display(const int a[], int n) {
+    for (int i = 0; i < n; i++) printf("%d ", a[i]);
+    printf("\n");
+}
+
+int main(void) {
+    int n, original[MAX], parentArray[MAX];
+
+    printf("Enter number of integers (1-%d): ", MAX);
+    if (scanf("%d", &n) != 1 || n < 1 || n > MAX) {
+        fprintf(stderr, "Invalid number of integers.\n");
+        return 1;
+    }
+
+    printf("Enter %d integers:\n", n);
+    for (int i = 0; i < n; i++) {
+        if (scanf("%d", &original[i]) != 1) {
+            fprintf(stderr, "Invalid input.\n");
+            return 1;
+        }
+        parentArray[i] = original[i];
+    }
+
+    /* Required FORK + parent/child sorting + WAIT demonstration. */
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        return 1;
+    }
+
+    if (pid == 0) {
+        printf("\nChild process (PID=%ld) sorting its array:\n", (long)getpid());
+        bubbleSort(original, n);
+        display(original, n);
+        _exit(0);
+    } else {
+        printf("\nParent process (PID=%ld) sorting its array:\n", (long)getpid());
+        bubbleSort(parentArray, n);
+        display(parentArray, n);
+        if (waitpid(pid, NULL, 0) == -1) {
+            perror("waitpid");
+            return 1;
+        }
+        printf("Parent collected child using wait().\n");
+    }
+
+    /* Zombie demonstration: child exits; parent deliberately delays wait(). */
+    printf("\n--- Zombie demonstration ---\n");
+    pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        return 1;
+    }
+    if (pid == 0) {
+        printf("Zombie-demo child (PID=%ld) exiting.\n", (long)getpid());
+        _exit(0);
+    } else {
+        printf("Parent (PID=%ld) sleeps for 5 seconds before wait().\n",
+               (long)getpid());
+        printf("During this interval the terminated child can be a zombie.\n");
+        sleep(5);
+        waitpid(pid, NULL, 0);
+        printf("wait() collected the child; zombie entry is removed.\n");
+    }
+
+    /* Orphan demonstration: parent exits before its child. */
+    printf("\n--- Orphan demonstration ---\n");
+    pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        return 1;
+    }
+    if (pid == 0) {
+        pid_t oldParent = getppid();
+        printf("Orphan-demo child PID=%ld, original parent PID=%ld\n",
+               (long)getpid(), (long)oldParent);
+        sleep(3);
+        printf("Child is still running; its new parent PID is %ld.\n",
+               (long)getppid());
+        _exit(0);
+    } else {
+        printf("Orphan-demo parent PID=%ld exits now.\n", (long)getpid());
+        fflush(stdout);
+        _exit(0);
+    }
+}
